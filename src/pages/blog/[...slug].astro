@@ -1,0 +1,27 @@
+---
+import { getCollection, render } from 'astro:content';
+import PostLayout from '../../layouts/PostLayout.astro';
+
+// Genera una página estática por cada entrada del blog.
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<PostLayout
+  title={post.data.title}
+  date={post.data.date}
+  description={post.data.description}
+  tags={post.data.tags}
+  backHref="/blog"
+  backLabel="Volver al blog"
+>
+  <Content />
+</PostLayout>

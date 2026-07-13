@@ -1,0 +1,21 @@
+---
+import { formatDate, isoDate } from '../utils';
+
+interface Props {
+  /** URL de la entrada. */
+  href: string;
+  title: string;
+  date: Date;
+  description?: string;
+}
+
+const { href, title, date, description } = Astro.props;
+---
+
+<li>
+  <a class="post-item" href={href}>
+    <p class="post-item-title">{title}</p>
+    <time class="post-item-meta" datetime={isoDate(date)}>{formatDate(date)}</time>
+    {description && <p class="post-item-desc">{description}</p>}
+  </a>
+</li>

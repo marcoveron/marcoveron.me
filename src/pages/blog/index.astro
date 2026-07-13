@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getSortedPosts } from '../../utils';
+
+const posts = await getSortedPosts('blog');
+---
+
+<BaseLayout
+  title="Blog"
+  description="Publicaciones de Marco Verón."
+>
+  <h1>Blog</h1>
+  <p class="lead">Notas y publicaciones más elaboradas.</p>
+
+  {
+    posts.length > 0 ? (
+      <ul class="post-list">
+        {posts.map((post) => (
+          <PostCard
+            href={`/blog/${post.id}`}
+            title={post.data.title}
+            date={post.data.date}
+            description={post.data.description}
+          />
+        ))}
+      </ul>
+    ) : (
+      <p class="muted">Todavía no hay publicaciones. ¡Pronto!</p>
+    )
+  }
+</BaseLayout>

@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site, socialLinks } from '../site.config';
+---
+
+<BaseLayout
+  title="Enlaces"
+  description="Redes y formas de contactar con Marco Verón."
+>
+  <h1>Enlaces y contacto</h1>
+  <p class="lead">La mejor forma de encontrarme o escribirme.</p>
+
+  <ul class="post-list">
+    {
+      socialLinks.map((link) => (
+        <li>
+          <a class="post-item" href={link.href} target="_blank" rel="me noopener">
+            <p class="post-item-title">{link.label}</p>
+            <span class="post-item-meta">{link.href.replace('mailto:', '')}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p style="margin-top: 2rem;">
+    ¿Prefieres el correo? Escríbeme a
+    <a href={`mailto:${site.email}`}>{site.email}</a>.
+  </p>
+</BaseLayout>
