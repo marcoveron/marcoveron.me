@@ -23,13 +23,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Build con Astro
-        uses: withastro/action@v3
-        with:
-          # Astro 7 requiere Node >= 22.12; el action usa Node 20 por defecto.
-          node-version: 22
-        # Detecta el gestor de paquetes automáticamente (usa package-lock.json).
+        uses: withastro/action@v6
+        # v6 usa Node 24 por defecto (compatible con Astro 7) y detecta el
+        # gestor de paquetes automáticamente a partir de package-lock.json.
 
   deploy:
     needs: build
@@ -40,4 +38,4 @@ jobs:
     steps:
       - name: Desplegar a GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
