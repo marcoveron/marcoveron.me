@@ -1,34 +1,28 @@
-import { defineCollection } from 'astro:content';
-import { glob } from 'astro/loaders';
-import { z } from 'zod';
+import { defineCollection } from "astro:content"
+import { glob } from "astro/loaders"
+import { z } from "astro/zod"
 
-/**
- * Esquema compartido por el blog y las reflexiones.
- * El frontmatter de cada archivo .md se valida contra esto: si olvidas un
- * campo obligatorio (por ejemplo `title` o `date`), el build avisa con un
- * mensaje claro.
- */
-const postSchema = z.object({
-  /** Título de la entrada (obligatorio). */
-  title: z.string(),
-  /** Fecha de publicación, formato YYYY-MM-DD (obligatorio). */
-  date: z.coerce.date(),
-  /** Resumen corto opcional, se muestra en los listados y en SEO. */
-  description: z.string().optional(),
-  /** Etiquetas opcionales, p. ej. [astro, notas]. */
-  tags: z.array(z.string()).default([]),
-  /** Ponlo en `true` para ocultar la entrada del sitio publicado. */
-  draft: z.boolean().default(false),
-});
+const pages = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/pages" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    draft: z.boolean().default(false),
+  }),
+})
 
-const blog = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
-  schema: postSchema,
-});
+const writings = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/writings" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    date: z.coerce.date(),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+  }),
+})
 
-const reflexiones = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/reflexiones' }),
-  schema: postSchema,
-});
-
-export const collections = { blog, reflexiones };
+export const collections = {
+  pages,
+  writings,
+}

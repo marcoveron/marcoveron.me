@@ -1,0 +1,38 @@
+---
+title: "Hola, mundo"
+description: "Entrada de prueba para comprobar que el sitio funciona."
+date: 2026-07-13
+tags: ["ejemplo"]
+draft: false
+---
+
+_Entrada de prueba, sin contenido real todavía._ Si estás leyendo esto, el sitio
+ya funciona. 🎉
+
+## Cómo escribir una entrada nueva
+
+La forma más rápida de crear una entrada es con el script incluido:
+
+```bash
+npm run new
+```
+
+Te preguntará el título, la descripción y las etiquetas, y creará el archivo
+`.mdx` en `src/content/writings/` con la cabecera lista. También puedes crearlo a
+mano copiando el "frontmatter" de esta entrada.
+
+Luego escribes debajo del segundo `---` usando Markdown (o MDX). La entrada
+aparece automáticamente en el listado, ordenada por fecha. Puedes usar todo lo
+habitual:
+
+- Listas como esta.
+- **Negrita** y _cursiva_.
+- [Enlaces](https://astro.build).
+- Y bloques de código con resaltado:
+
+```js
+console.log("¡Hola desde el blog!")
+```
+
+> Un consejo: pon `draft: true` en la cabecera para guardar un borrador sin que se
+> publique.

@@ -4,60 +4,112 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Qué es
 
-Sitio web personal y blog de Marco Verón (`marcoveron.me`). Astro estático, en español,
-desplegado en GitHub Pages. Diseño minimalista tipográfico con tema claro/oscuro.
+Sitio web personal y blog de Marco Verón (`marcoveron.me`). Está construido sobre la
+plantilla **[Astro Sidey](https://github.com/odhyp/astro-sidey)**: Astro estático, en
+español, desplegado en GitHub Pages. Diseño minimalista y tipográfico, **tema único claro**
+(paleta Flexoki tipo papel), con foco en la lectura.
 
 ## Comandos
 
 ```bash
-npm run dev      # servidor de desarrollo (http://localhost:4321)
+npm run dev      # servidor de desarrollo con --host (http://localhost:4321)
+npm run new      # crea una entrada nueva en src/content/writings/ (pregunta título, descripción, tags)
 npm run build    # build de producción a dist/ (incluye sitemap y rss.xml)
 npm run preview  # sirve el build de dist/ para verificarlo
-npm run astro -- check   # comprobación de tipos/diagnósticos de Astro
 ```
 
-No hay tests ni linter configurados. La validación real ocurre en `npm run build`:
-el esquema de contenido (Zod) falla el build si algún frontmatter es inválido.
+No hay tests ni linter configurados (sí Prettier: `.prettierrc`). La validación real ocurre
+en `npm run build`: el esquema de contenido (Zod) falla el build si algún frontmatter es
+inválido, y `src/utils/parseConfig.ts` falla el arranque si `sidey.config.ts` es inválido.
 
 ## Arquitectura
 
-- **Astro 7**, salida 100% estática. Sin framework de UI ni CSS externo: los estilos son
-  un único `src/styles/global.css` con variables CSS por tema.
-- **Content Collections (Content Layer API)**: `src/content.config.ts` define dos
-  colecciones, `blog` y `reflexiones`, ambas con el **mismo** esquema (`postSchema`) y
-  cargadas con el `glob()` loader desde `src/content/{blog,reflexiones}/*.md`. Añadir un
-  `.md` ahí = nueva entrada; no hay que tocar código.
-- **API de contenido (Astro 5+/7)**: usar `getCollection`, `getEntry` y la función
-  **`render(entry)`** importada de `astro:content` (no `entry.render()`). El identificador
-  de cada entrada es **`entry.id`** (se usa para construir las URLs), no `slug`.
-- **`src/utils.ts`** centraliza la lógica compartida: `getSortedPosts(collection)` ordena
-  por fecha desc y **oculta borradores solo en producción** (`import.meta.env.PROD`), y
-  `formatDate`/`isoDate` formatean fechas en español. Reutilízalo en vez de reimplementar.
-- **Configuración editable por el usuario** (no técnica): `src/site.config.ts` (título,
-  tagline, email, `socialLinks`, `navLinks`) y `src/projects.ts`. La bio está en
-  `src/pages/sobre-mi.astro`. Cambios de identidad/menú van aquí, no dispersos.
-- **Layouts**: `BaseLayout.astro` (head/SEO/OG, header con nav activa, footer, y el script
-  inline anti-parpadeo de tema en el `<head>`); `PostLayout.astro` (envuelve BaseLayout
-  para una entrada). El toggle de tema (`components/ThemeToggle.astro`) escribe
-  `data-theme` en `<html>` y persiste en `localStorage`.
+- **Astro 6** + **Tailwind CSS 4** (vía `@tailwindcss/vite`, no PostCSS). Salida 100%
+  estática. **No hay CSS suelto**: todo está en `src/styles/global.css`, que define la
+  paleta **Flexoki** y las variables semánticas (estilo shadcn) más el `@theme` de Tailwind.
+  Tipografía **Geist / Geist Mono** (paquetes `@fontsource-variable/*`).
+- **Resaltado de código: Expressive Code** (`astro-expressive-code`), configurado en
+  `ec.config.mjs` (tema `monokai`, números de línea y secciones plegables disponibles). No
+  se usa Shiki directamente.
+- **Iconos**: `astro-icon` con los sets `ph` (Phosphor) y `simple-icons`
+  (`<Icon name="ph:..." />`).
+- **MDX** habilitado: las entradas pueden ser `.md` o `.mdx` e importar componentes.
+- **Content Collections (Content Layer API)**: `src/content.config.ts` define **dos**
+  colecciones cargadas con el `glob()` loader:
+  - **`pages`** (`src/content/pages/*.{md,mdx}`) — páginas sueltas. Esquema: `title`
+    (obligatorio), `description?`, `draft` (por defecto `false`). Usa el layout `SinglePage`.
+    **Mapeo de URL especial**: `home.mdx` → `/`; cualquier otro archivo → `/<nombre>`
+    (p. ej. `about.mdx` → `/about`). Lo renderiza `src/pages/[...id].astro`.
+  - **`writings`** (`src/content/writings/*.{md,mdx}`) — las entradas del blog. Esquema:
+    `title`, `description?`, `date` (obligatorio, `YYYY-MM-DD`), `tags` (array, por defecto
+    `[]`), `draft`. Usa el layout `WritingPage`. Cada archivo → `/writings/<nombre>`. El
+    índice `/writings` se autogenera en `src/pages/writings/index.astro` (ordenado por fecha
+    desc); las entradas las renderiza `src/pages/writings/[...id].astro`.
+  - Añadir un archivo en esas carpetas = nueva página/entrada; **la carpeta es la URL**. No
+    hay que tocar código. Lo más rápido para una entrada nueva es `npm run new`.
+- **API de contenido (Astro 5+/6)**: usar `getCollection`, `getEntry` y **`render(entry)`**
+  de `astro:content` (no `entry.render()`). El identificador de cada entrada es **`entry.id`**
+  (el nombre del archivo sin extensión), y es lo que forma la URL.
+- **`src/utils/`** centraliza la lógica compartida — **reutilízala** en vez de reimplementar:
+  - `getContent.ts`: `getWritings()` (excluye borradores y ordena por fecha desc) y
+    `getPages()`. El getter genérico `getContent(collection, { drafts, sort })` **excluye
+    los borradores por defecto** (`draft: true` no aparece ni en dev ni en producción, salvo
+    que pases `{ drafts: true }`).
+  - `formatDate.ts`: `formatDate(date, style)` en `es-ES` y zona `UTC` (evita desfases de
+    día). Estilos: `long` | `medium` | `short`.
+  - `parseConfig.ts`: valida `sidey.config.ts` con Zod y lo exporta como **`config`** (alias
+    `@parseConfig`). Si añades campos a `sideyConfig`, actualiza también su esquema aquí.
+- **Configuración editable (no técnica)**: **`sidey.config.ts`** en la raíz es el archivo
+  central. Contiene `site` (`title`, `description`, `url`, `author`, `locale`), `navigation`
+  (menú) y `socialLinks` (pie de página y "Sobre mí"). Cambios de identidad/menú/enlaces van
+  aquí. La bio está en `src/content/pages/about.mdx`.
+- **Layouts y componentes**:
+  - `src/layouts/BaseLayout.astro` envuelve todo: `<head>` (vía `components/layout/BaseHead.astro`
+    con SEO/OG/canonical/favicon/RSS), la barra lateral `Sidebar.astro` (navegación), el
+    `Footer.astro` (copyright + `socialLinks`) y el `Lightbox.astro`.
+  - `src/layouts/pages/SinglePage.astro` (páginas) y `WritingPage.astro` (entradas, con fecha
+    y tiempo de lectura) envuelven `BaseLayout`.
+  - Componentes: `common/{Back,PostTags,Prose}`, `section/writings/WritingCard`, y para MDX
+    `mdx/{Callout,Figure}` (importables dentro de `.mdx`).
+  - Plugins: `plugins/remark-reading-time.mjs` (calcula "N min de lectura", en español) y
+    `plugins/rehype-lightbox.mjs` (marca las `<img>` para el lightbox). Además rehype
+    `slug`, `autolink-headings` y `external-links` (abre externos en pestaña nueva).
+- **Alias de import (`tsconfig.json`)** — úsalos: `@/*`, `@config`, `@parseConfig`,
+  `@components/*`, `@content/*`, `@layouts/*`, `@plugins/*`, `@utils/*`.
+- **Tema**: es **único (claro)**. `global.css` incluye variables para un modo `.dark`, pero
+  **no hay conmutador ni script que active la clase `.dark`** — es intencional. No
+  reintroduzcas un toggle salvo que el usuario lo pida.
 
 ## Rutas
 
-`src/pages/`: `index.astro`, `blog/index.astro` + `blog/[...slug].astro`, `reflexiones/`
-(igual), `proyectos.astro`, `sobre-mi.astro`, `enlaces.astro`, `rss.xml.ts`, `404.astro`.
-Las páginas dinámicas usan `getStaticPaths()` con `params.slug = post.id`.
+- `/` ← `src/content/pages/home.mdx`
+- `/about` ← `src/content/pages/about.mdx` (menú: "Sobre mí")
+- `/writings` (índice) y `/writings/<id>` ← `src/content/writings/*`
+- `/rss.xml` ← `src/pages/rss.xml.js` (feed de `writings`; enlaces `/writings/<id>/`)
+- `/sitemap-index.xml` (generado por `@astrojs/sitemap`)
+- `404` ← `src/pages/404.astro`
+
+Las páginas dinámicas usan `getStaticPaths()`; en `pages`, `home` mapea a `params.id`
+`undefined` (la raíz).
 
 ## Despliegue
 
-Push a `main` → GitHub Actions (`.github/workflows/deploy.yml`, `withastro/action` +
+Push a `main` → GitHub Actions (`.github/workflows/deploy.yml`, `withastro/action@v6` +
 `actions/deploy-pages`) construye y publica en GitHub Pages. `public/CNAME` fija el dominio
-`marcoveron.me`; el DNS está en Namecheap (ver README). `site` en `astro.config.mjs` debe
-seguir siendo `https://marcoveron.me` (afecta a canonical, sitemap y RSS).
+`marcoveron.me`. El `site` de Astro se toma de **`sideyConfig.site.url`** en `sidey.config.ts`
+(`astro.config.mjs` lo lee de ahí); debe seguir siendo `https://marcoveron.me` porque afecta
+a canonical, sitemap y RSS. Astro 6 requiere Node ≥ 22.12 (el workflow usa Node 24).
 
 ## Convenciones
 
 - Todo el contenido e interfaz en **español**, con acentos correctos.
-- Al añadir campos al frontmatter, actualiza `postSchema` en `src/content.config.ts` y la
+- Crea entradas nuevas con `npm run new` (o copiando el frontmatter de otra). El nombre del
+  archivo (en minúsculas, sin espacios ni acentos) es la URL.
+- Al añadir campos al frontmatter, actualiza el esquema en `src/content.config.ts` y la
   tabla de `CONTENIDO.md` (la guía de publicación del usuario).
-- Mantén el diseño minimalista: reutiliza las variables CSS y clases existentes de
-  `global.css` antes de añadir estilos nuevos.
+- Al cambiar identidad, menú o enlaces sociales, edita **solo** `sidey.config.ts` (y, si
+  añades un campo nuevo al config, su esquema en `src/utils/parseConfig.ts`).
+- Mantén el diseño minimalista: reutiliza las utilidades de Tailwind y los tokens de color
+  (`text-foreground`, `text-muted-foreground`, `border-border`, etc.) de `global.css` antes
+  de añadir estilos nuevos. La apariencia se ajusta en `src/styles/global.css`, los layouts
+  de `src/layouts/pages/` y `ec.config.mjs` (bloques de código).

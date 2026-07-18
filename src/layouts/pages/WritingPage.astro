@@ -1,0 +1,31 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro"
+import Prose from "@components/common/Prose.astro"
+import PostTags from "@components/common/PostTags.astro"
+import Back from "@components/common/Back.astro"
+import { formatDate } from "@utils/formatDate"
+
+const { frontmatter, readingTime } = Astro.props
+const { title, description, date, tags } = frontmatter.data
+
+const formattedDate = formatDate(date, "long")
+const isoDate = date.toISOString().split("T")[0]
+---
+
+<BaseLayout title={title} description={description}>
+  <Prose>
+    <h1>{title}</h1>
+
+    <div class="-mt-4 mb-8 space-x-2 text-sm text-muted-foreground">
+      <time datetime={isoDate}>{formattedDate}</time>
+      <span>&middot;</span>
+      <span>{readingTime}</span>
+    </div>
+
+    <slot />
+
+    <PostTags tags={tags} />
+
+    <Back label="Volver a Escritos" href="/writings" class="mt-8" />
+  </Prose>
+</BaseLayout>

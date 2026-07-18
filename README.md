@@ -1,43 +1,50 @@
 # marcoveron.me
 
-Sitio web personal y blog de Marco Verón, construido con [Astro](https://astro.build).
-Diseño minimalista, con secciones de **Blog**, **Reflexiones** (diario), **Proyectos**,
-**Sobre mí** y **Enlaces**. Tema claro/oscuro con selector.
+Sitio web personal y blog de Marco Verón, construido con [Astro](https://astro.build) sobre
+la plantilla [Astro Sidey](https://github.com/odhyp/astro-sidey). Diseño minimalista y
+tipográfico, tema único claro (paleta [Flexoki](https://stephango.com/flexoki)), con una
+sección de **Escritos** y una página **Sobre mí**.
 
 ## Uso rápido
 
 ```bash
-npm install     # instalar dependencias (solo la primera vez)
+npm install      # instalar dependencias (solo la primera vez)
 npm run dev      # servidor local en http://localhost:4321
+npm run new      # crear una entrada nueva (pregunta título, descripción, tags)
 npm run build    # generar el sitio en dist/
 npm run preview  # previsualizar el build de producción
 ```
 
 ## Cómo publicar contenido
 
-Ver **[CONTENIDO.md](CONTENIDO.md)** para la guía completa. En resumen: crea un archivo
-`.md` en `src/content/blog/` (o `src/content/reflexiones/`), ponle la cabecera con
-`title` y `date`, y aparece solo en el sitio.
+Ver **[CONTENIDO.md](CONTENIDO.md)** para la guía completa. En resumen: ejecuta
+`npm run new` (o crea un archivo `.md`/`.mdx` en `src/content/writings/` con la cabecera de
+`title` y `date`) y la entrada aparece sola en el sitio.
 
 ## Estructura
 
 ```
+sidey.config.ts    # nombre, descripción, menú y enlaces sociales (EDITAR AQUÍ)
+ec.config.mjs      # ajustes de Expressive Code (bloques de código)
 src/
   content/
-    blog/          # posts del blog (un .md por post)
-    reflexiones/   # entradas del diario (un .md por entrada)
-  content.config.ts  # esquema del frontmatter (validación)
-  pages/           # rutas del sitio (.astro)
-  layouts/         # plantillas (BaseLayout, PostLayout)
-  components/      # piezas reutilizables (PostCard, ThemeToggle)
-  styles/          # estilos globales
-  site.config.ts   # nombre, enlaces sociales y menú (EDITAR AQUÍ)
-  projects.ts      # lista de proyectos
+    pages/         # páginas fijas: home.mdx (/), about.mdx (/about)
+    writings/      # entradas del blog (un .md/.mdx por entrada → /writings/...)
+  content.config.ts  # esquema del frontmatter (validación con Zod)
+  pages/           # rutas de Astro ([...id], writings/, rss.xml, 404)
+  layouts/         # BaseLayout + layouts de página (SinglePage, WritingPage)
+  components/      # piezas reutilizables (Sidebar, Footer, WritingCard, ...)
+  plugins/         # remark/rehype (tiempo de lectura, lightbox)
+  styles/          # global.css (paleta Flexoki + tokens)
+  utils/           # getContent, formatDate, parseConfig
 public/            # archivos estáticos (favicon, CNAME, imágenes)
 ```
 
-Datos que probablemente quieras editar primero: `src/site.config.ts` (nombre, enlaces,
-menú), `src/projects.ts` (proyectos) y `src/pages/sobre-mi.astro` (tu bio).
+Datos que probablemente quieras editar primero: `sidey.config.ts` (nombre, menú, enlaces),
+`src/content/pages/about.mdx` (tu bio) y `src/content/pages/home.mdx` (la portada).
+
+> **Nota sobre la plantilla:** el `global.css` incluye variables para un modo oscuro, pero el
+> sitio no monta ningún selector de tema; funciona en un único tema claro por diseño.
 
 ---
 

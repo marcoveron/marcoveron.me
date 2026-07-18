@@ -26,8 +26,8 @@ jobs:
         uses: actions/checkout@v5
       - name: Build con Astro
         uses: withastro/action@v6
-        # v6 usa Node 24 por defecto (compatible con Astro 7) y detecta el
-        # gestor de paquetes automáticamente a partir de package-lock.json.
+        # v6 usa Node 24 por defecto (Astro 6 requiere Node >=22.12) y detecta
+        # el gestor de paquetes automáticamente a partir de package-lock.json.
 
   deploy:
     needs: build

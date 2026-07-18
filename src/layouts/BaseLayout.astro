@@ -1,111 +1,42 @@
 ---
-import { site, navLinks, socialLinks } from '../site.config';
-import ThemeToggle from '../components/ThemeToggle.astro';
-import '../styles/global.css';
+import "@/styles/global.css"
+import { config } from "@parseConfig"
+
+import BaseHead from "@components/layout/BaseHead.astro"
+import Sidebar from "@components/layout/Sidebar.astro"
+import Footer from "@components/layout/Footer.astro"
+import Lightbox from "@components/layout/Lightbox.astro"
 
 interface Props {
-  /** Título de la página; se antepone al nombre del sitio. */
-  title?: string;
-  /** Descripción para SEO / Open Graph. */
-  description?: string;
+  title: string
+  description: string
+  image?: string
 }
 
-const { title, description = site.description } = Astro.props;
-const pageTitle = title ? `${title} · ${site.title}` : site.title;
-
-// Ruta actual normalizada (sin barra final) para marcar el enlace activo.
-const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-const canonical = new URL(Astro.url.pathname, site.url).href;
-const year = new Date().getFullYear();
+const { title, description, image } = Astro.props
 ---
 
 <!doctype html>
-<html lang={site.lang}>
+<html lang={config.site.locale}>
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <title>{pageTitle}</title>
-    <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
-
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={pageTitle} />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
-    <meta name="twitter:card" content="summary" />
-
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title={`${site.title} — Blog`}
-      href="/rss.xml"
-    />
-    <meta name="generator" content={Astro.generator} />
-
-    <!--
-      Aplica el tema guardado ANTES de pintar, para evitar el parpadeo
-      (flash) de tema claro al cargar una página en modo oscuro.
-    -->
-    <script is:inline>
-      (function () {
-        try {
-          var t = localStorage.getItem('theme');
-          if (t === 'light' || t === 'dark') {
-            document.documentElement.setAttribute('data-theme', t);
-          }
-        } catch (e) {}
-      })();
-    </script>
+    <BaseHead title={title} description={description} image={image} />
   </head>
 
-  <body>
-    <header class="site-header">
-      <div class="container">
-        <a href="/" class="site-title">{site.title}</a>
-        <nav class="site-nav" aria-label="Navegación principal">
-          {
-            navLinks.map((link) => {
-              const linkPath = link.href.replace(/\/$/, '') || '/';
-              const isActive =
-                linkPath === '/'
-                  ? path === '/'
-                  : path === linkPath || path.startsWith(linkPath + '/');
-              return (
-                <a href={link.href} aria-current={isActive ? 'page' : undefined}>
-                  {link.label}
-                </a>
-              );
-            })
-          }
-          <ThemeToggle />
-        </nav>
-      </div>
-    </header>
+  <body class="antialiased">
+    <div
+      class="mx-auto flex min-h-svh w-full max-w-3xl flex-col px-4 sm:min-h-screen md:grid md:grid-cols-[1fr_4fr] md:gap-8 md:px-8 md:pr-8"
+    >
+      <Sidebar />
 
-    <main>
-      <div class="container">
-        <slot />
-      </div>
-    </main>
+      <div class="flex min-w-0 grow animate-slide-in flex-col py-8 md:mt-8">
+        <main class="grow">
+          <slot />
+        </main>
 
-    <footer class="site-footer">
-      <div class="container">
-        <span>© {year} {site.title}</span>
-        <span>
-          {
-            socialLinks.map((link, i) => (
-              <>
-                {i > 0 && ' · '}
-                <a href={link.href} rel="me noopener" target="_blank">
-                  {link.label}
-                </a>
-              </>
-            ))
-          }
-        </span>
+        <Footer />
       </div>
-    </footer>
+    </div>
+
+    <Lightbox />
   </body>
 </html>
