@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
+@import "@fontsource-variable/fraunces/full.css";
+@import "@fontsource-variable/fraunces/full-italic.css";
 
 @plugin "@tailwindcss/typography";
 
@@ -246,7 +248,8 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-display);
+  --font-display: "Fraunces Variable", Georgia, serif;
   --font-sans: "Geist Variable", sans-serif;
   --font-mono: "Geist Mono Variable", monospace;
 
@@ -290,17 +293,79 @@
     cursor: pointer;
   }
 
-  /* Heading Anchor */
-  .heading-anchor {
-    @apply decoration-muted-foreground/0! hover:decoration-muted-foreground/50!;
+  /*
+   * Fraunces es variable en cuatro ejes. Los fijamos aquí para que el display
+   * tenga siempre el mismo carácter: `SOFT` redondea los remates (menos
+   * severo que una Didone) y `WONK` activa las formas alternativas de la
+   * itálica, que es donde la fuente tiene personalidad.
+   */
+  .font-display,
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-variation-settings:
+      "SOFT" 30,
+      "WONK" 1;
+    font-optical-sizing: auto;
   }
 
-  .heading-anchor::before {
-    @apply absolute -left-4 hidden text-muted-foreground/25 transition-colors duration-200 ease-out md:block;
+  /* Heading Anchor */
+  .heading-anchor {
+    /* El encabezado es un <a>, pero no debe heredar el subrayado de enlace */
+    @apply bg-none! text-inherit! no-underline!;
+  }
+
+  /*
+   * La almohadilla solo tiene sentido en los encabezados internos: el h1 es el
+   * titular de la página, no una sección a la que enlazar.
+   */
+  :is(h2, h3) > .heading-anchor::before {
+    @apply absolute -left-5 hidden text-border transition-colors duration-200 ease-out md:block;
     content: "#";
   }
 
-  .heading-anchor:hover::before {
-    @apply text-muted-foreground/75;
+  :is(h2, h3) > .heading-anchor:hover::before {
+    @apply text-primary;
   }
+}
+
+@layer components {
+  /*
+   * Voz de utilidad: todo lo que es dato y no prosa (fechas, tiempos de
+   * lectura, tags, rótulos de sección) va en mono y en versalitas falsas.
+   */
+  .eyebrow {
+    @apply font-mono text-xs tracking-[0.14em] text-muted-foreground uppercase;
+  }
+
+  /* Filete editorial: la regla fina que separa secciones y entradas. */
+  .rule {
+    @apply border-0 border-t border-border/70;
+  }
+}
+
+/*
+ * Expressive Code ---------------------------------------------------------
+ * El bloque se marca con un filete rojo a la izquierda, igual que la cita:
+ * ambos son voces ajenas al cuerpo del texto y comparten el mismo gesto.
+ */
+.expressive-code {
+  @apply my-8;
+}
+
+/* Sin título no hay barra de título: sería una franja vacía */
+.expressive-code .frame.is-terminal:not(.has-title) .header,
+.expressive-code .frame:not(.has-title) .header {
+  display: none;
+}
+
+.expressive-code .frame pre {
+  border: 0 !important;
+  border-left: 1px solid var(--color-primary) !important;
+  border-left-color: color-mix(
+    in oklab,
+    var(--color-primary) 40%,
+    transparent
+  ) !important;
 }

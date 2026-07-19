@@ -1,0 +1,51 @@
+---
+import type { CollectionEntry } from "astro:content"
+
+import { formatDate } from "@utils/formatDate"
+
+interface Props {
+  writingEntry: CollectionEntry<"writings">
+  /**
+   * El año solo se imprime en la primera entrada de cada año, como en el
+   * índice de un archivo: la columna izquierda marca dónde empieza cada
+   * tramo del tiempo en vez de repetir el dato en cada fila.
+   */
+  showYear?: boolean
+}
+
+const { writingEntry, showYear = false } = Astro.props
+const { title, description, date } = writingEntry.data
+
+const year = date.getUTCFullYear()
+const dayMonth = formatDate(date, "dayMonth")
+---
+
+<a
+  href={`/${writingEntry.collection}/${writingEntry.id}`}
+  class="group grid grid-cols-1 gap-x-6 gap-y-1 py-6 sm:grid-cols-[3.5rem_1fr]"
+>
+  <span
+    class:list={["eyebrow hidden pt-1.5 sm:block", !showYear && "sm:opacity-0"]}
+    aria-hidden={!showYear}
+  >
+    {year}
+  </span>
+
+  <div class="flex flex-col gap-y-1">
+    <h2
+      class="font-display text-xl leading-snug text-foreground transition-colors duration-200 ease-out group-hover:text-primary"
+    >
+      {title}
+    </h2>
+
+    {
+      description && (
+        <p class="leading-relaxed text-muted-foreground">{description}</p>
+      )
+    }
+
+    <span class="eyebrow mt-1">
+      <span class="sm:hidden">{year} · </span>{dayMonth}
+    </span>
+  </div>
+</a>

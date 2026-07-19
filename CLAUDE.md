@@ -27,10 +27,25 @@ inválido, y `src/utils/parseConfig.ts` falla el arranque si `sidey.config.ts` e
 - **Astro 6** + **Tailwind CSS 4** (vía `@tailwindcss/vite`, no PostCSS). Salida 100%
   estática. **No hay CSS suelto**: todo está en `src/styles/global.css`, que define la
   paleta **Flexoki** y las variables semánticas (estilo shadcn) más el `@theme` de Tailwind.
-  Tipografía **Geist / Geist Mono** (paquetes `@fontsource-variable/*`).
+- **Sistema tipográfico (tres voces, no las mezcles)**. Paquetes
+  `@fontsource-variable/*`:
+  - **Display — `Fraunces`** (`font-display`, alias de `font-heading`): titulares y
+    encabezados `h1`–`h3`, más las citas. Los ejes variables se fijan **una sola vez** en
+    `global.css` (`SOFT` 30, `WONK` 1); no los redefinas por componente.
+  - **Cuerpo — `Geist`** (`font-sans`): la prosa y nada más.
+  - **Utilidad — `Geist Mono`** (`font-mono`): todo lo que es *dato* y no prosa — fechas,
+    tiempo de lectura, tags, navegación, rótulos de sección, pie. Se aplica con la clase
+    **`.eyebrow`** (mono + versalitas + `tracking` ancho), definida en `global.css`. Usa
+    `.eyebrow`, no repliques sus utilidades sueltas.
+- **El rojo (`--primary`) tiene un solo trabajo**: marcar dónde está el lector o qué está
+  señalando — sección activa del menú, `hover` de enlaces y titulares, ancla de encabezado,
+  filete de citas y bloques de código. No lo uses como color decorativo.
 - **Resaltado de código: Expressive Code** (`astro-expressive-code`), configurado en
-  `ec.config.mjs` (tema `monokai`, números de línea y secciones plegables disponibles). No
-  se usa Shiki directamente.
+  `ec.config.mjs`. Tema **`github-light`** repintado con tokens Flexoki: el bloque **no es
+  una ventana de terminal** (sin fondo oscuro, sin marco, sin luces de semáforo), es un
+  bloque sangrado con filete rojo a la izquierda. Los retoques finales de esa caja están al
+  pie de `global.css`. No se usa Shiki directamente. **Ojo**: `ec.config.mjs` no recarga en
+  caliente — hay que reiniciar `npm run dev`.
 - **Iconos**: `astro-icon` con los sets `ph` (Phosphor) y `simple-icons`
   (`<Icon name="ph:..." />`).
 - **MDX** habilitado: las entradas pueden ser `.md` o `.mdx` e importar componentes.
@@ -56,7 +71,8 @@ inválido, y `src/utils/parseConfig.ts` falla el arranque si `sidey.config.ts` e
     los borradores por defecto** (`draft: true` no aparece ni en dev ni en producción, salvo
     que pases `{ drafts: true }`).
   - `formatDate.ts`: `formatDate(date, style)` en `es-ES` y zona `UTC` (evita desfases de
-    día). Estilos: `long` | `medium` | `short`.
+    día). Estilos: `long` | `medium` | `short` | `dayMonth` (día y mes sin año, para el
+    índice de escritos, que ya agrupa por año en el margen).
   - `parseConfig.ts`: valida `sidey.config.ts` con Zod y lo exporta como **`config`** (alias
     `@parseConfig`). Si añades campos a `sideyConfig`, actualiza también su esquema aquí.
 - **Configuración editable (no técnica)**: **`sidey.config.ts`** en la raíz es el archivo
@@ -65,12 +81,23 @@ inválido, y `src/utils/parseConfig.ts` falla el arranque si `sidey.config.ts` e
   aquí. La bio está en `src/content/pages/about.mdx`.
 - **Layouts y componentes**:
   - `src/layouts/BaseLayout.astro` envuelve todo: `<head>` (vía `components/layout/BaseHead.astro`
-    con SEO/OG/canonical/favicon/RSS), la barra lateral `Sidebar.astro` (navegación), el
-    `Footer.astro` (copyright + `socialLinks`) y el `Lightbox.astro`.
-  - `src/layouts/pages/SinglePage.astro` (páginas) y `WritingPage.astro` (entradas, con fecha
-    y tiempo de lectura) envuelven `BaseLayout`.
-  - Componentes: `common/{Back,PostTags,Prose}`, `section/writings/WritingCard`, y para MDX
-    `mdx/{Callout,Figure}` (importables dentro de `.mdx`).
+    con SEO/OG/canonical/favicon/RSS), el **`Masthead.astro`** (cabecera horizontal: nombre a
+    la izquierda, navegación a la derecha, filete debajo; la sección activa se marca con un
+    filete rojo superior), el `Footer.astro` (copyright + `socialLinks`, espejo del masthead)
+    y el `Lightbox.astro`. **Es una sola columna centrada** (`max-w-2xl`), no una barra
+    lateral: la medida de línea manda.
+  - `src/layouts/pages/SinglePage.astro` (páginas) y `WritingPage.astro` (entradas, con
+    antetítulo de fecha · tiempo de lectura, titular grande y la `description` como entradilla
+    en cursiva) envuelven `BaseLayout`.
+  - **Convención de titulares**: el rótulo de la ruta va como `.eyebrow` y **el contenido
+    lleva el `h1`**. Por eso `home.mdx` y `about.mdx` empiezan con un `#`: ese es el titular.
+    `SinglePage` omite el rótulo en la portada (el masthead ya dice dónde estás).
+  - Componentes: `common/{Back,PostTags,Prose}`, `section/writings/WritingRow` (una fila del
+    índice), y para MDX `mdx/{Callout,Figure}` (importables dentro de `.mdx`).
+  - **El índice de escritos (`src/pages/writings/index.astro`) es un registro de archivo**: el
+    año cuelga en la columna izquierda y **solo se imprime cuando cambia**. Ese cálculo
+    (`showYear`) vive en el índice, que es quien ve la lista entera; `WritingRow` solo lo
+    recibe. Si cambias el orden de las entradas, revisa esa lógica.
   - Plugins: `plugins/remark-reading-time.mjs` (calcula "N min de lectura", en español) y
     `plugins/rehype-lightbox.mjs` (marca las `<img>` para el lightbox). Además rehype
     `slug`, `autolink-headings` y `external-links` (abre externos en pestaña nueva).

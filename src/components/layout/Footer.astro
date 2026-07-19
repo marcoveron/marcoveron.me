@@ -5,40 +5,39 @@ const year = new Date().getFullYear()
 const socialLinks = config.socialLinks
 ---
 
-<footer
-  class="mt-16 flex flex-col gap-y-3 pt-8 text-xs text-muted-foreground sm:text-sm"
->
-  {
-    socialLinks.length > 0 && (
-      <nav class="flex flex-wrap gap-x-4 gap-y-1">
-        {socialLinks.map((link) => (
-          <a
-            href={link.href}
-            target={link.href.startsWith("mailto:") ? undefined : "_blank"}
-            rel="me noopener noreferrer"
-            class="underline decoration-muted-foreground/50 underline-offset-2 transition-colors duration-200 ease-out hover:text-foreground"
-          >
-            {link.label}
-          </a>
-        ))}
-      </nav>
-    )
-  }
+<footer class="mt-auto border-t border-border/70 py-6">
+  <div
+    class="flex flex-col gap-y-4 sm:flex-row-reverse sm:items-baseline sm:justify-between sm:gap-x-8"
+  >
+    {
+      socialLinks.length > 0 && (
+        <nav class="flex flex-wrap gap-x-5 gap-y-2">
+          {socialLinks.map((link) => (
+            <a
+              href={link.href}
+              target={link.href.startsWith("mailto:") ? undefined : "_blank"}
+              rel="me noopener noreferrer"
+              class="eyebrow transition-colors duration-200 ease-out hover:text-primary"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+      )
+    }
 
-  <div class="flex items-baseline justify-between gap-x-4">
-    <p>
+    <p class="eyebrow">
       &copy; {year}
-      <span class="font-medium text-foreground/80">{config.site.author}</span>
-    </p>
-
-    <p>
-      Hecho con <a
-        href="https://github.com/odhyp/astro-sidey"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="font-medium text-foreground/80 underline underline-offset-2 transition-colors duration-200 ease-out hover:text-foreground"
-        >Astro Sidey</a
-      >
+      {config.site.author}
+      <span class="text-muted-foreground/50">
+        · sobre <a
+          href="https://github.com/odhyp/astro-sidey"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="transition-colors duration-200 ease-out hover:text-primary"
+          >Astro Sidey</a
+        >
+      </span>
     </p>
   </div>
 </footer>

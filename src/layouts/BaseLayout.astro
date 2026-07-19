@@ -3,7 +3,7 @@ import "@/styles/global.css"
 import { config } from "@parseConfig"
 
 import BaseHead from "@components/layout/BaseHead.astro"
-import Sidebar from "@components/layout/Sidebar.astro"
+import Masthead from "@components/layout/Masthead.astro"
 import Footer from "@components/layout/Footer.astro"
 import Lightbox from "@components/layout/Lightbox.astro"
 
@@ -23,18 +23,14 @@ const { title, description, image } = Astro.props
   </head>
 
   <body class="antialiased">
-    <div
-      class="mx-auto flex min-h-svh w-full max-w-3xl flex-col px-4 sm:min-h-screen md:grid md:grid-cols-[1fr_4fr] md:gap-8 md:px-8 md:pr-8"
-    >
-      <Sidebar />
+    <div class="mx-auto flex min-h-svh w-full max-w-2xl flex-col px-5 sm:px-8">
+      <Masthead />
 
-      <div class="flex min-w-0 grow animate-slide-in flex-col py-8 md:mt-8">
-        <main class="grow">
-          <slot />
-        </main>
+      <main class="grow animate-slide-in pt-12 pb-16 md:pt-16">
+        <slot />
+      </main>
 
-        <Footer />
-      </div>
+      <Footer />
     </div>
 
     <Lightbox />

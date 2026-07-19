@@ -1,11 +1,13 @@
 // src/utils/formatDate.ts
 
-type DateStyle = "long" | "medium" | "short"
+type DateStyle = "long" | "medium" | "short" | "dayMonth"
 
 const dateStyles: Record<DateStyle, Intl.DateTimeFormatOptions> = {
   long: { dateStyle: "long" },
   medium: { dateStyle: "medium" },
   short: { dateStyle: "short" },
+  // Sin año: el índice de escritos ya lo agrupa por año en el margen
+  dayMonth: { day: "numeric", month: "short" },
 }
 
 export function formatDate(

@@ -13,19 +13,37 @@ const isoDate = date.toISOString().split("T")[0]
 ---
 
 <BaseLayout title={title} description={description}>
-  <Prose>
-    <h1>{title}</h1>
+  <article>
+    <header class="mb-10">
+      <p class="eyebrow">
+        <time datetime={isoDate}>{formattedDate}</time>
+        <span aria-hidden="true"> · </span>
+        <span>{readingTime}</span>
+      </p>
 
-    <div class="-mt-4 mb-8 space-x-2 text-sm text-muted-foreground">
-      <time datetime={isoDate}>{formattedDate}</time>
-      <span>&middot;</span>
-      <span>{readingTime}</span>
-    </div>
+      <h1
+        class="mt-4 font-display text-[2rem] leading-[1.15] tracking-tight text-balance text-foreground sm:text-[2.5rem]"
+      >
+        {title}
+      </h1>
 
-    <slot />
+      {
+        description && (
+          <p class="mt-4 font-display text-lg leading-relaxed text-muted-foreground italic">
+            {description}
+          </p>
+        )
+      }
+
+      <hr class="rule mt-8" />
+    </header>
+
+    <Prose>
+      <slot />
+    </Prose>
 
     <PostTags tags={tags} />
 
-    <Back label="Volver a Escritos" href="/writings" class="mt-8" />
-  </Prose>
+    <Back label="Volver a Escritos" href="/writings" class="mt-10" />
+  </article>
 </BaseLayout>

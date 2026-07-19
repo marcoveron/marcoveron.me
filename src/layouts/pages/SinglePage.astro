@@ -4,11 +4,16 @@ import Prose from "@components/common/Prose.astro"
 
 const { frontmatter } = Astro.props
 const { title, description } = frontmatter.data
+
+// La portada no lleva rótulo de sección: el masthead ya dice dónde estás, y el
+// titular de bienvenida tiene que entrar sin nada por delante.
+const isHome = Astro.url.pathname === "/"
 ---
 
 <BaseLayout title={title} description={description}>
+  {!isHome && <p class="eyebrow mb-6">{title}</p>}
+
   <Prose>
-    <h1>{title}</h1>
     <slot />
   </Prose>
 </BaseLayout>

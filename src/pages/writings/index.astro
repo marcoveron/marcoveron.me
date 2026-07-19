@@ -1,7 +1,6 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro"
-import Prose from "@components/common/Prose.astro"
-import WritingCard from "@components/section/writings/WritingCard.astro"
+import WritingRow from "@components/section/writings/WritingRow.astro"
 import { getWritings } from "@utils/getContent"
 
 const {
@@ -10,17 +9,36 @@ const {
 } = Astro.props
 
 const writingEntries = await getWritings()
+
+// Las entradas ya vienen ordenadas por fecha descendente: basta con mirar la
+// anterior para saber si esta abre un año nuevo.
+const rows = writingEntries.map((writingEntry, index) => ({
+  writingEntry,
+  showYear:
+    index === 0 ||
+    writingEntry.data.date.getUTCFullYear() !==
+      writingEntries[index - 1].data.date.getUTCFullYear(),
+}))
+
+const count = writingEntries.length
 ---
 
 <BaseLayout title={title} description={description}>
-  <Prose>
-    <h1>Escritos</h1>
-    <div class="not-prose flex flex-col gap-y-8">
-      {
-        writingEntries.map((writingEntry) => (
-          <WritingCard writingEntry={writingEntry} />
-        ))
-      }
-    </div>
-  </Prose>
+  <div class="flex items-baseline justify-between gap-x-4">
+    <h1 class="eyebrow">Escritos</h1>
+    <span class="eyebrow">
+      {count}
+      {count === 1 ? "entrada" : "entradas"}
+    </span>
+  </div>
+
+  <div
+    class="mt-2 divide-y divide-border/70 border-t border-b border-border/70"
+  >
+    {
+      rows.map(({ writingEntry, showYear }) => (
+        <WritingRow writingEntry={writingEntry} showYear={showYear} />
+      ))
+    }
+  </div>
 </BaseLayout>

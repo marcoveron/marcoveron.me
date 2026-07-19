@@ -1,0 +1,44 @@
+---
+import { config } from "@parseConfig"
+
+const navMenu = config.navigation
+
+const currentPath = Astro.url.pathname
+const isActive = (href: string) =>
+  href === "/" ? currentPath === "/" : currentPath.startsWith(href)
+---
+
+<header class="pt-8 md:pt-12">
+  <div
+    class="flex flex-col gap-y-4 pb-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-x-8"
+  >
+    <a
+      href="/"
+      class="font-display text-lg tracking-tight text-foreground transition-colors duration-200 ease-out hover:text-primary"
+      style="font-variation-settings: 'SOFT' 30, 'WONK' 1, 'wght' 500;"
+    >
+      {config.site.author}
+    </a>
+
+    <nav class="-mt-px flex flex-wrap items-baseline gap-x-5 gap-y-2">
+      {
+        navMenu.map((nav) => (
+          <a
+            href={nav.href}
+            aria-current={isActive(nav.href) ? "page" : undefined}
+            class:list={[
+              "eyebrow border-t-2 pt-2 transition-colors duration-200 ease-out hover:text-foreground",
+              isActive(nav.href)
+                ? "border-t-primary text-foreground"
+                : "border-t-transparent",
+            ]}
+          >
+            {nav.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+
+  <hr class="rule" />
+</header>
